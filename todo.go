@@ -1,10 +1,10 @@
 package todo
 
 import (
-	_ "encoding/json"
+	"encoding/json"
 	_ "errors"
 	"fmt"
-	_ "io/ioutil"
+	"io/ioutil"
 	_ "os"
 	"time"
 )
@@ -42,4 +42,14 @@ func (l *List) Complete(i int) error {
 	ls[i-1].Done = true
 	ls[i-1].CompletedAt = time.Now()
 	return nil
+}
+
+// Save method encodes the List as JSON and saves it
+// using the provided file name
+func (l *List) Save(filename string) error {
+	js, err := json.Marshal(l)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filename, js, 0644)
 }
