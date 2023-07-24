@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 )
@@ -36,7 +35,7 @@ func (l *List) Add(task string) {
 func (l *List) Complete(i int) error {
 	ls := *l
 	if i <= 0 || i > len(ls) {
-		return fmt.Errorf("Item %d does not exist", i)
+		return fmt.Errorf("item %d does not exist", i)
 	}
 	// Adjusting index for 0 based index
 	ls[i-1].Done = true
@@ -51,13 +50,24 @@ func (l *List) Save(filename string) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filename, js, 0644)
+	return os.WriteFile(filename, js, 0644)
+}
+
+// Delete method deletes a ToDo item from the list
+func (l *List) Delete(i int) error {
+	ls := *l
+	if i <= 0 || i > len(ls) {
+		return fmt.Errorf("item %d does not exist", i)
+	}
+	// Adjusting index for 0 based index
+	*l = append(ls[:i-1], ls[i:]...)
+	return nil
 }
 
 // Get method opens the provided file name, decodes
 // the JSON data and parses it into a List
 func (l *List) Get(filename string) error { //This method also handles situations where the given file doesn’t exist or is empty.
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) { // Check if the file exists
 			return nil
