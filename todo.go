@@ -2,10 +2,10 @@ package todo
 
 import (
 	"encoding/json"
-	_ "errors"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	_ "os"
+	"os"
 	"time"
 )
 
@@ -52,4 +52,20 @@ func (l *List) Save(filename string) error {
 		return err
 	}
 	return ioutil.WriteFile(filename, js, 0644)
+}
+
+// Get method opens the provided file name, decodes
+// the JSON data and parses it into a List
+func (l *List) Get(filename string) error { //This method also handles situations where the given file doesn’t exist or is empty.
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) { // Check if the file exists
+			return nil
+		}
+		return err
+	}
+	if len(file) == 0 {
+		return nil
+	}
+	return json.Unmarshal(file, l)
 }
